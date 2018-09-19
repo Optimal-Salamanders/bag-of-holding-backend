@@ -1,7 +1,7 @@
 // Express docs: http://expressjs.com/en/api.html
 const express = require('express')
 // Passport docs: http://www.passportjs.org/docs/
-// const passport = require('passport')
+const passport = require('passport')
 
 // multer file upload set up
 const multer = require('multer')
@@ -10,6 +10,12 @@ const upload = multer({ dest: 'uploads/' })
 // pull in Mongoose model for uploads
 const Upload = require('../models/upload')
 const s3Upload = require('../../lib/aws-s3-upload.js')
+
+// Auth
+// passing this as a second argument to `router.<verb>` will make it
+// so that a token MUST be passed for that route to be available
+// it will also set `res.user`
+const requireToken = passport.authenticate('bearer', { session: false })
 
 // we'll use this to intercept any errors that get thrown and send them
 // back to the client with the appropriate status code
@@ -63,7 +69,10 @@ router.get('/uploads/:id', (req, res) => {
 
 // CREATE
 // POST /uploads
-router.post('/uploads', upload.single('image'), (req, res) => {
+router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
+  console.log(req)
+  // set owner of new upload to be current user only for JSON
+  // req.body.upload.owner = req.user.id
 
   // prepare file
   const file = {
@@ -77,7 +86,9 @@ router.post('/uploads', upload.single('image'), (req, res) => {
     .then((data) => {
       return Upload.create({
         title: file.title,
-        url: data.Location
+        url: data.Location,
+        // tag:
+        owner: req.user.id
       })
     })
     .then(upload => {

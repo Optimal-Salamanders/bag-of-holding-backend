@@ -8,6 +8,14 @@ const uploadSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true
+  },
+  tag: {
+    type: String
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 }, {
   timestamps: true
