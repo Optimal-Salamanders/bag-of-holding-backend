@@ -30,7 +30,7 @@ const customErrors = require('../../lib/custom_errors')
 const handle404 = customErrors.handle404
 // we'll use this function to send 401 when a user tries to modify a resource
 // that's owned by someone else
-// const requireOwnership = customErrors.requireOwnership
+const requireOwnership = customErrors.requireOwnership
 
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
@@ -95,17 +95,20 @@ router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
 
 // UPDATE
 // PATCH /uploads/5a7db6c74d55bc51bdf39793
-router.patch('/uploads/:id', (req, res) => {
+router.patch('/uploads/:id', requireToken, (req, res) => {
+  console.log(req)
   // if the client attempts to change the `owner` property by including a new
   // owner, prevent that by deleting that key/value pair
   // delete req.body.upload.owner
 
-  Upload.findById(req.params.id)
+  // Upload.findById(req.params.id)
+  Upload.findOne({_id: req.params.id})
     .then(handle404)
     .then(upload => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
-      // requireOwnership(req, upload)
+      console.log('upload is ', upload)
+      requireOwnership(req, upload)
 
       // the client will often send empty strings for parameters that it does
       // not want to update. We delete any key/value pair where the value is
