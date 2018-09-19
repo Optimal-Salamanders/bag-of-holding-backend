@@ -108,7 +108,8 @@ router.patch('/uploads/:id', requireToken, (req, res) => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
       console.log('upload is ', upload)
-      requireOwnership(req, upload)
+      console.log('upload dot owner is ', upload.owner)
+      requireOwnership(req, upload.owner)
 
       // the client will often send empty strings for parameters that it does
       // not want to update. We delete any key/value pair where the value is
