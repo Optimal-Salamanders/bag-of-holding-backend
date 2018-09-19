@@ -41,7 +41,7 @@ const router = express.Router()
 
 // INDEX
 // GET /uploads
-router.get('/uploads', (req, res) => {
+router.get('/uploads', requireToken, (req, res) => {
   Upload.find()
     .then(uploads => {
       // `uploads` will be an array of Mongoose documents
@@ -70,17 +70,12 @@ router.get('/uploads/:id', (req, res) => {
 // CREATE
 // POST /uploads
 router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
-  console.log(req)
-  // set owner of new upload to be current user only for JSON
-  // req.body.upload.owner = req.user.id
-
   // prepare file
   const file = {
     path: req.file.path,
     title: req.body.title,
     originalname: req.file.originalname
   }
-
   // upload file to S3
   s3Upload(file)
     .then((data) => {
