@@ -18,7 +18,16 @@ const uploadSchema = new mongoose.Schema({
     required: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toObject: {
+    // remove `hashedPassword` field when we call `.toObject`
+    transform: (_doc, user) => {
+      delete url
+      return upLoadSchema
+    }
+  }
 })
+
+
 
 module.exports = mongoose.model('Upload', uploadSchema)
