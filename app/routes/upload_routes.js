@@ -99,9 +99,12 @@ router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
 
 router.patch('/uploads/:id', requireToken, (req, res) => {
   console.log('req is', req)
-  // if the client attempts to change the `owner` property by including a new
+  // if the client attempts to change the `owner` property by ingicluding a new
   // owner, prevent that by deleting that key/value pair
-  /* DRAGONS  Mongo db writes 2 OBJECTID's for the _resource and for owner, we were just passing through the owner object id, I still think we need the delete function that is below to prevent someone trying to change the owner of the object */
+  /* DRAGONS  Mongo db writes 2 OBJECTID's for the _resource and for owner, we were just passing through the owner object id, I still think we need the delete function that is below to prevent someone trying to change the owner of the object used
+  https://stackoverflow.com/questions/17223517/mongoose-casterror-cast-to-objectid-failed-for-value-object-object-at-path/17223701#17223701
+  to figure it out
+   */
   delete req.body.upload.owner
   console.log('req is', req)
   Upload.findById(req.params.id)
@@ -133,11 +136,11 @@ router.patch('/uploads/:id', requireToken, (req, res) => {
 // DESTROY
 // DELETE /uploads/5a7db6c74d55bc51bdf39793
 router.delete('/uploads/:id', requireToken, (req, res) => {
-  const file = {
-    // path: req.file.path,
-    title: req.body.title
-    // originalname: req.file.originalname
-  }
+  // const file = {
+  //   // path: req.file.path,
+  //   title: req.body.title
+  //   // originalname: req.file.originalname
+  // }
 
   const deleteId = req.params.id
 
@@ -147,6 +150,8 @@ router.delete('/uploads/:id', requireToken, (req, res) => {
       Upload.findById(deleteId)
         .then(handle404)
         .then(upload => {
+          requireOwnership(req, upload)
+
           upload.remove()
         })
         .then(() => res.sendStatus(204))
