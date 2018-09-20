@@ -8,10 +8,10 @@ curl "${API}${URL_PATH}/${ID}" \
   --request PATCH \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer ${TOKEN}" \
-  --data '{
+--data '{
     "upload": {
       "title": "'"${TITLE}"'",
-      "url":"'"${URL}"'",
+      "url": "'"${URL}"'",
       "tag": "'"${TAG}"'"
     }
   }'
