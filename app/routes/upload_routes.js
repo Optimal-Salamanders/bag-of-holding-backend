@@ -30,7 +30,7 @@ const customErrors = require('../../lib/custom_errors')
 const handle404 = customErrors.handle404
 // we'll use this function to send 401 when a user tries to modify a resource
 // that's owned by someone else
-// const requireOwnership = customErrors.requireOwnership
+const requireOwnership = customErrors.requireOwnership
 
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
@@ -72,6 +72,7 @@ router.get('/uploads', requireToken, (req, res) => {
 // POST /uploads
 router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
   // prepare file
+  console.log('req is', req)
   const file = {
     path: req.file.path,
     title: req.body.title,
@@ -95,17 +96,21 @@ router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
 
 // UPDATE
 // PATCH /uploads/5a7db6c74d55bc51bdf39793
-router.patch('/uploads/:id', (req, res) => {
+
+router.patch('/uploads/:id', requireToken, (req, res) => {
+  console.log('req is', req)
   // if the client attempts to change the `owner` property by including a new
   // owner, prevent that by deleting that key/value pair
-  // delete req.body.upload.owner
-
+  /* DRAGONS  Mongo db writes 2 OBJECTID's for the _resource and for owner, we were just passing through the owner object id, I still think we need the delete function that is below to prevent someone trying to change the owner of the object */
+  delete req.body.upload.owner
+  console.log('req is', req)
   Upload.findById(req.params.id)
     .then(handle404)
     .then(upload => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
-      // requireOwnership(req, upload)
+      console.log('req is', req)
+      requireOwnership(req, upload)
 
       // the client will often send empty strings for parameters that it does
       // not want to update. We delete any key/value pair where the value is
