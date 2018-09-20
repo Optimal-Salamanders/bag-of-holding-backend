@@ -72,13 +72,17 @@ router.get('/uploads', requireToken, (req, res) => {
 // POST /uploads
 router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
   // prepare file
-  console.log('req is', req)
+  // console.log('req is', req)
+  console.log('req.user.email is', req.user.email)
+  // console.log('require token is ', requireToken)
   const file = {
     path: req.file.path,
     title: req.body.title,
-    originalname: req.file.originalname
+    originalname: req.file.originalname,
+    foldername: req.user.email.substring(req.user.email.indexOf('@'), 0)
   }
   // upload file to S3
+
   s3Upload(file)
     .then((data) => {
       return Upload.create({
