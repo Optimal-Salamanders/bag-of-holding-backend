@@ -1,6 +1,6 @@
 #!/bin/bash
 
-API="https://nameless-harbor-24935.herokuapp.com/"
+API="https://nameless-harbor-24935.herokuapp.com"
 URL_PATH="/uploads"
 
 curl "${API}${URL_PATH}/${ID}" \
@@ -17,7 +17,3 @@ curl "${API}${URL_PATH}/${ID}" \
   }'
 
 echo
-
-
-https://git.heroku.com/thawing-inlet-61413.git
-https://git.heroku.com/nameless-harbor-24935.git
