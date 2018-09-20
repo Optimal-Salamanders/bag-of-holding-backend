@@ -96,7 +96,6 @@ router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
 
 // UPDATE
 // PATCH /uploads/5a7db6c74d55bc51bdf39793
-
 router.patch('/uploads/:id', requireToken, (req, res) => {
   console.log('req is', req)
   // if the client attempts to change the `owner` property by ingicluding a new
@@ -112,6 +111,7 @@ router.patch('/uploads/:id', requireToken, (req, res) => {
     .then(upload => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
+
       console.log('req is', req)
       requireOwnership(req, upload)
 
