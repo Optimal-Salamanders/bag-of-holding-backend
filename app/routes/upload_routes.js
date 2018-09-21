@@ -150,15 +150,14 @@ router.delete('/uploads/:id', requireToken, (req, res) => {
   const deleteId = req.params.id
 
   Upload.findById(deleteId)
+  .then(upload => {
+    requireOwnership(req, upload)
+  })
     .then((object) => s3Delete(object))
     .then((data) => {
       Upload.findById(deleteId)
         .then(handle404)
-        .then(upload => {
-          requireOwnership(req, upload)
-
-          upload.remove()
-        })
+        .then((upload) => upload.remove())
         .then(() => res.sendStatus(204))
         .catch(err => handle(err, res))
     })
