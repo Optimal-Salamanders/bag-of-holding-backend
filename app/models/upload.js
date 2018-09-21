@@ -16,15 +16,15 @@ const uploadSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
+  },
 }, {
   timestamps: true
   // toObject: {
   //   // remove `hashedPassword` field when we call `.toObject`
-  //   transform: (url, upload) => {
-  //     delete upload.url
+  //   transform: (owner, upload) => {
+  //     upload.owner = owner.email
   //     return upload
-  //   }
+    // }
   // }
 })
 
