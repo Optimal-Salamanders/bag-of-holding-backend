@@ -1,11 +1,11 @@
 #!/bin/bash
 
 API="https://nameless-harbor-24935.herokuapp.com"
-URL_PATH="/uploads"
+URL_PATH="/sign-out"
 
-curl "${API}${URL_PATH}/${ID}" \
+curl "${API}${URL_PATH}/" \
   --include \
-  --header "Authorization: Bearer ${TOKEN}" \
   --request DELETE \
+  --header "Authorization: Token token=${TOKEN}"
 
 echo
