@@ -1,3 +1,4 @@
+/* ===== Import Required Files ===== */
 const express = require('express')
 // jsonwebtoken docs: https://github.com/auth0/node-jsonwebtoken
 const crypto = require('crypto')
@@ -5,21 +6,11 @@ const crypto = require('crypto')
 const passport = require('passport')
 // bcrypt docs: https://github.com/kelektiv/node.bcrypt.js
 const bcrypt = require('bcrypt')
-
-// see above for explanation of "salting", 10 rounds is recommended
 const bcryptSaltRounds = 10
-
 const handle = require('../../lib/error_handler')
 const BadParamsError = require('../../lib/custom_errors').BadParamsError
-
 const User = require('../models/user')
-
-// passing this as a second argument to `router.<verb>` will make it
-// so that a token MUST be passed for that route to be available
-// it will also set `res.user`
 const requireToken = passport.authenticate('bearer', { session: false })
-
-// instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
 // SIGN UP
@@ -98,17 +89,10 @@ router.post('/sign-in', (req, res) => {
 // PATCH /change-password
 router.patch('/change-password', requireToken, (req, res) => {
   let user
-  // `req.user` will be determined by decoding the token payload
   User.findById(req.user.id)
-    // save user outside the promise chain
     .then(record => { user = record })
-    // check that the old password is correct
     .then(() => bcrypt.compare(req.body.passwords.old, user.hashedPassword))
-    // `correctPassword` will be true if hashing the old password ends up the
-    // same as `user.hashedPassword`
     .then(correctPassword => {
-      // throw an error if the new password is missing, an empty string,
-      // or the old password was wrong
       if (!req.body.passwords.new || !correctPassword) {
         throw new BadParamsError()
       }
@@ -120,16 +104,12 @@ router.patch('/change-password', requireToken, (req, res) => {
       user.hashedPassword = hash
       return user.save()
     })
-    // respond with no content and status 200
     .then(() => res.sendStatus(204))
-    // pass any errors along to the error handler
     .catch(err => handle(err, res))
 })
 
 router.delete('/sign-out', requireToken, (req, res) => {
-  // create a new random token for the user, invalidating the current one
   req.user.token = crypto.randomBytes(16)
-  // save the token and respond with 204
   req.user.save()
     .then(() => res.sendStatus(204))
     .catch(err => handle(err, res))
