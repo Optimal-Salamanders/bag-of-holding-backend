@@ -1,47 +1,31 @@
+/* ===== Import Required Files ===== */
 // Express docs: http://expressjs.com/en/api.html
 const express = require('express')
 // Passport docs: http://www.passportjs.org/docs/
 const passport = require('passport')
-
 // multer file upload set up
 const multer = require('multer')
 const upload = multer({ dest: 'uploads/' })
-
-// pull in Mongoose model for uploads
+/* ===== Our Mongoose Models ===== */
 const Upload = require('../models/upload')
 const s3Upload = require('../../lib/aws-s3-upload.js')
 const s3Delete = require('../../lib/aws-s3-delete.js')
-
-// Auth
-// passing this as a second argument to `router.<verb>` will make it
-// so that a token MUST be passed for that route to be available
-// it will also set `res.user`
+/* ===== Passport ===== */
 const requireToken = passport.authenticate('bearer', { session: false })
-
-// we'll use this to intercept any errors that get thrown and send them
-// back to the client with the appropriate status code
+/* ===== Generic error handler ===== */
 const handle = require('../../lib/error_handler')
-
-// this is a collection of methods that help us detect situations when we need
-// to throw a custom error
+/* ===== Customer error handler ===== */
 const customErrors = require('../../lib/custom_errors')
-
-// we'll use this function to send 404 when non-existant document is requested
+/* ===== 404 ===== */
 const handle404 = customErrors.handle404
-// we'll use this function to send 401 when a user tries to modify a resource
-// that's owned by someone else
+/* ===== User ownership verification ===== */
 const requireOwnership = customErrors.requireOwnership
-
-// passing this as a second argument to `router.<verb>` will make it
-// so that a token MUST be passed for that route to be available
-// it will also set `res.user`
-// const requireToken = passport.authenticate('bearer', { session: false })
-
-// instantiate a router (mini app that only handles routes)
+/* ===== Express router ===== */
 const router = express.Router()
+/* ===== ===== ===== * / 
 
-// INDEX
-// GET /uploads
+/* ===== GET Verbs ===== */
+// Index all /uploads resources
 router.get('/uploads', requireToken, (req, res) => {
   Upload.find()
     .then(uploads => {
@@ -55,34 +39,27 @@ router.get('/uploads', requireToken, (req, res) => {
     // if an error occurs, pass it to the handler
     .catch(err => handle(err, res))
 })
-
-/* ===== SHOW INDIVIDUAL RESOURCE NOT MVP ===== */
-// // GET /uploads/5a7db6c74d55bc51bdf39793
+// Get a single /upload resource
 // router.get('/uploads/:id', (req, res) => {
-//   // req.params.id will be set based on the `:id` in the route
 //   Upload.findById(req.params.id)
 //     .then(handle404)
-//     // if `findById` is succesful, respond with 200 and "upload" JSON
 //     .then(upload => res.status(200).json({ upload: upload.toObject() }))
-//     // if an error occurs, pass it to the handler
 //     .catch(err => handle(err, res))
 // })
 
-// CREATE
-// POST /uploads
+
+/* ===== POST Verb ===== */
+// Create a /uploads resource
 router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
-  // prepare file
-  // console.log('req is', req)
-  console.log('req.user.email is', req.user.email)
-  // console.log('require token is ', requireToken)
+  console.log('req.user is', req.user)
   const file = {
     path: req.file.path,
     title: req.body.title,
     originalname: req.file.originalname,
-    foldername: req.user.email.substring(req.user.email.indexOf('@'), 0)
+    foldername: req.user.email.substring(req.user.email.indexOf('@'), 0),
+    userId: req.user.id
   }
-  // upload file to S3
-
+/* ===== Amazon S3 ===== */
   s3Upload(file)
     .then((data) => {
       return Upload.create({
@@ -98,83 +75,49 @@ router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
     .catch(err => handle(err, res))
 })
 
-// UPDATE
-// PATCH /uploads/5a7db6c74d55bc51bdf39793
+/* ===== PATCH Verb ===== */
+// update one /uploads resource
 router.patch('/uploads/:id', requireToken, (req, res) => {
-  console.log('req is', req)
-  // if the client attempts to change the `owner` property by ingicluding a new
-  // owner, prevent that by deleting that key/value pair
-  /* DRAGONS  Mongo db writes 2 OBJECTID's for the _resource and for owner, we were just passing through the owner object id, I still think we need the delete function that is below to prevent someone trying to change the owner of the object used
-  https://stackoverflow.com/questions/17223517/mongoose-casterror-cast-to-objectid-failed-for-value-object-object-at-path/17223701#17223701
-  to figure it out
-   */
+  // sanitize user input
   delete req.body.upload.owner
-  console.log('req is', req)
+  delete req.body.upload.url
   Upload.findById(req.params.id)
     .then(handle404)
     .then(upload => {
-      // pass the `req` object and the Mongoose record to `requireOwnership`
-      // it will throw an error if the current user isn't the owner
-
-      console.log('req is', req)
       requireOwnership(req, upload)
-
-      // the client will often send empty strings for parameters that it does
-      // not want to update. We delete any key/value pair where the value is
-      // an empty string before updating
+      // prevent saving empty strings to database
       Object.keys(req.body.upload).forEach(key => {
         if (req.body.upload[key] === '') {
           delete req.body.upload[key]
         }
       })
-
-      // pass the result of Mongoose's `.update` to the next `.then`
       return upload.update(req.body.upload)
     })
-    // if that succeeded, return 204 and no JSON
+    // if that succeeded, return 204 instead of a JSON object
     .then(() => res.sendStatus(204))
-    // if an error occurs, pass it to the handler
     .catch(err => handle(err, res))
 })
 
-// DESTROY
-// DELETE /uploads/5a7db6c74d55bc51bdf39793
+
+/* ===== DELETE VERB ===== */
+// Destroy a /uploads resource
 router.delete('/uploads/:id', requireToken, (req, res) => {
-  // const file = {
-  //   // path: req.file.path,
-  //   title: req.body.title
-  //   // originalname: req.file.originalname
-  // }
-
+  // save the id into a variable we can re-use
   const deleteId = req.params.id
-
   Upload.findById(deleteId)
+  .then(upload => {
+    requireOwnership(req, upload)
+    return upload
+  })
     .then((object) => s3Delete(object))
     .then((data) => {
       Upload.findById(deleteId)
         .then(handle404)
-        .then(upload => {
-          requireOwnership(req, upload)
-
-          upload.remove()
-        })
+        .then((upload) => upload.remove())
         .then(() => res.sendStatus(204))
         .catch(err => handle(err, res))
     })
     .catch(err => handle(err, res))
-
-  // Upload.findById(req.params.id)
-  //   .then(handle404)
-  //   .then(upload => {
-  //     // throw an error if current user doesn't own `upload`
-  //     // requireOwnership(req, upload)
-  //     // delete the upload ONLY IF the above didn't throw
-  //     upload.remove()
-  //   })
-  //   // send back 204 and no content if the deletion succeeded
-  //   .then(() => res.sendStatus(204))
-  //   // if an error occurs, pass it to the handler
-  //   .catch(err => handle(err, res))
 })
 
 module.exports = router
