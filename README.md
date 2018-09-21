@@ -5,10 +5,10 @@ Our application allows users to store any file type remotely, modify how its rec
 are some restrictions on the file size.
 
 ## Links
--Frontend client: https://optimal-salamanders.github.io/bag-of-holding-frontend
--Frontend repo: https://github.com/Optimal-Salamanders/bag-of-holding-frontend
--Backend server: https://nameless-harbor-24935.herokuapp.com
--Backend repo: https://github.com/Optimal-Salamanders/bag-of-holding-backend
+--Frontend client: https://optimal-salamanders.github.io/bag-of-holding-frontend
+--Frontend repo: https://github.com/Optimal-Salamanders/bag-of-holding-frontend
+--Backend server: https://nameless-harbor-24935.herokuapp.com
+--Backend repo: https://github.com/Optimal-Salamanders/bag-of-holding-backend
 
 ## List of technologies used
 -Frontend: Javascript, JQuery, Handlebars, HTML, CSS
