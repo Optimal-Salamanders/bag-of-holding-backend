@@ -15,19 +15,16 @@ are some restrictions on the file size.
 -Backend: Javascript, Express, Mongo, Heroku  
 -Operations: GitHub, Trello  
 
-# Future development opportunities
+# The Process
 
 
-# Document your planning, process and problem-solving strategy
-
-
-# Wireframes
+## Wireframes
 V1: https://i.imgur.com/VrsxZKY.jpg  
 V2: https://i.imgur.com/yNDM3LO.jpg  
 V3: https://i.imgur.com/8nd4FQb.jpg  
 
-# User stories
-## Functionality:
+## User stories
+### Functionality:
 As a registered user...  
 -I want to upload a file so I sign in and upload a file with a tag  
 -I want to update a file’s title or tags so I sign in and update a file  
@@ -36,10 +33,10 @@ As a registered user...
 -I can view the folder structure of my files  
 -I can view associated metadata with the file, such as date uploaded and modified, owner, and tags  
 
-## Stretch goal:
+### Stretch goal:
 -As a registered user, I want to give permission to another user to update a file so I give permission to another registered user
 
-## Auth:
+### Auth:
 As a non-registered user...  
 -I would like to sign up with email and password  
 -As a non-registered user who signs up with an already used email then I should receive an error  
@@ -48,7 +45,7 @@ As a non-registered user...
 -As a registered user who signs in with an incorrect password then I should receive an error  
 -As a registered user who signs in with a correct password then I should receive a success message  
 
-# Entity Relationship Diagram (ERD)
+### Entity Relationship Diagram (ERD)
 https://i.imgur.com/EcWQg5c.png  
 
 # Routes Catalog
@@ -62,3 +59,5 @@ Resource
 -GET: Client -> API -> client  
 -PATCH: Client -> API -> client  
 -DELETE: Client -> API -> Amazon S3 -> API -> client  
+
+# Future development opportunities
