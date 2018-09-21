@@ -73,13 +73,14 @@ router.get('/uploads', requireToken, (req, res) => {
 router.post('/uploads', requireToken, upload.single('image'), (req, res) => {
   // prepare file
   // console.log('req is', req)
-  console.log('req.user.email is', req.user.email)
+  console.log('req.user is', req.user)
   // console.log('require token is ', requireToken)
   const file = {
     path: req.file.path,
     title: req.body.title,
     originalname: req.file.originalname,
-    foldername: req.user.email.substring(req.user.email.indexOf('@'), 0)
+    foldername: req.user.email.substring(req.user.email.indexOf('@'), 0),
+    userId: req.user.id
   }
   // upload file to S3
 
@@ -149,15 +150,16 @@ router.delete('/uploads/:id', requireToken, (req, res) => {
   const deleteId = req.params.id
 
   Upload.findById(deleteId)
+  .then(upload => {
+    requireOwnership(req, upload)
+    console.log("upload is", upload)
+    return upload
+  })
     .then((object) => s3Delete(object))
     .then((data) => {
       Upload.findById(deleteId)
         .then(handle404)
-        .then(upload => {
-          requireOwnership(req, upload)
-
-          upload.remove()
-        })
+        .then((upload) => upload.remove())
         .then(() => res.sendStatus(204))
         .catch(err => handle(err, res))
     })
