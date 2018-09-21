@@ -152,6 +152,8 @@ router.delete('/uploads/:id', requireToken, (req, res) => {
   Upload.findById(deleteId)
   .then(upload => {
     requireOwnership(req, upload)
+    console.log("upload is", upload)
+    return upload
   })
     .then((object) => s3Delete(object))
     .then((data) => {
