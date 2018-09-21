@@ -1,8 +1,7 @@
 # What does our app do?
 For our first group project at WDI, we were tasked to recreate Dropbox. In three days.
 
-Our application allows users to store any file type remotely, modify how its recorded, delete it and allow other users to see and access it. We used free web hosting to build the application, so there
-are some restrictions on the file size.
+Our application allows users to store any type of file on our server remotely, modify how its recorded, delete it and allow other users to see and access it. We used free web hosting to build the application, so there are some restrictions on the file size.
 
 # Links
 -Frontend client: https://optimal-salamanders.github.io/bag-of-holding-frontend  
@@ -39,11 +38,11 @@ As a registered user...
 ### Auth:
 As a non-registered user...  
 -I would like to sign up with email and password  
--As a non-registered user who signs up with an already used email then I should receive an error  
--As a non-registered user who signs up with an new email then I should receive a success message  
--As a registered user, I would like to sign in with email and password  
--As a registered user who signs in with an incorrect password then I should receive an error  
--As a registered user who signs in with a correct password then I should receive a success message  
+-I should receive an error if I sign-up with an already used email then  
+-I should receive a success message when I sign up with an new email   
+-I would like to sign in with email and password  
+-I should receive an error if I try to sign in with an incorrect password   
+-I should receive a success message when I sign in with a correct password     
 
 ### Entity Relationship Diagram (ERD)
 https://i.imgur.com/EcWQg5c.png  
