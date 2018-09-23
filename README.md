@@ -15,7 +15,15 @@ Our application allows users to store any type of file on our server remotely, m
 -Operations: GitHub, Trello  
 
 # The Process
+As a team, we began by identifying what the minimal viable product criteria would be for
+a remote storage application would be. Once that was completed, we developed user stories,
+identified entity relationships and drew the first wireframe sketches. We wanted to make sure
+that we had a solid plan because we only had three days to design the web application.
 
+After we created a plan, we decided to code the fundamental resources first and then split the
+remaining tasks in half, in order to get practice coding in pairs. We set about building the
+"Bag of Holding" from the backend to the frontend. After we had a MVP on Friday, we divided up some
+of the finishing touches that we could work on over the weekend in order to shine up the project.
 
 ## Wireframes
 V1: https://i.imgur.com/VrsxZKY.jpg  
@@ -48,15 +56,13 @@ As a non-registered user...
 https://i.imgur.com/EcWQg5c.png  
 
 # Routes Catalog
-Authentication  
--POST: Sign-up and sign-in -> API -> client  
--PATCH: Change password -> API -> client  
--DELETE: Sign-out -> API -> client  
-
 Resource  
--POST: Client -> API -> Amazon S3 -> API -> client  
--GET: Client -> API -> client  
--PATCH: Client -> API -> client  
--DELETE: Client -> API -> Amazon S3 -> API -> client  
+-POST: /uploads uploads#create (client -> API -> Amazon S3 -> API -> client)
+-GET: /uploads/ uploads#index (client -> API -> client)
+-PATCH: /uploads/:id uploads#update (client -> API -> client)  
+-DELETE: /uploads/:id uploads#destroy (client -> API -> Amazon S3 -> API -> client)  
 
 # Future development opportunities
+-Search functionality  
+-Folder structure  
+-Design  
